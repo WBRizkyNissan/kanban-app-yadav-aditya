@@ -1,0 +1,80 @@
+############################
+# Backend (.NET / C#)
+############################
+# Build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# Visual Studio & VS Code
+.vs/
+.vscode/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Temporary files
+[Tt]est[Rr]esult*/
+*.tmp
+*.cache
+*.dbmdl
+*.bak
+
+# Publish output
+/wwwroot/dist/
+/publish/
+/dist/
+
+# Secrets and environment files
+appsettings.Development.json
+appsettings.Local.json
+*.secret.json
+
+############################
+# Frontend (React + Vite)
+############################
+# Dependencies
+frontend/node_modules/
+frontend/.npm/
+frontend/.yarn/
+
+# Build output
+frontend/dist/
+frontend/.vite/
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# Local environment files
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Editor stuff
+frontend/.vscode/
+frontend/.idea/
+
+############################
+# System & Misc
+############################
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
