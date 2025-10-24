@@ -75,7 +75,7 @@ export default function KanbanBoard() {
                       deleteTask(columnId, taskId)
                       toast.success('Task deleted')
                     }}
-                    onEditTitle={(columnId, title) => {
+                    onEditColumnTitle={(columnId, title) => {
                       updateColumnTitle(columnId, title)
                       toast.success('Column title updated')
                     }}

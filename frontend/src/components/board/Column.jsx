@@ -8,7 +8,7 @@ export default function Column({
   onAddTask,
   onEditTask,
   onDeleteTask,
-  onEditTitle,
+  onEditColumnTitle,
   onDeleteColumn,
 }) {
   const [taskOpen, setTaskOpen] = useState(false)
@@ -26,7 +26,10 @@ export default function Column({
             Edit
           </button>
           <button
-            onClick={() => onDeleteColumn(column.id)}
+            onClick={() => {
+                if (window.confirm('Are you sure you want to delete this column ?')) {
+                    onDeleteColumn(column.id)}
+            }}    
             className="rounded-md border px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 hover:cursor-pointer"
           >
             Delete
@@ -54,7 +57,11 @@ export default function Column({
                 columnId={column.id}
                 task={t}
                 onEdit={(patch) => onEditTask(column.id, t.id, patch)}
-                onDelete={() => onDeleteTask(column.id, t.id)}
+                onDelete={() => {
+                    if (window.confirm('Are you sure you want to delete this task?')) {
+                        onDeleteTask(column.id, t.id)
+                }
+                }}
               />
             ))}
           </div>
@@ -76,7 +83,7 @@ export default function Column({
           initialTitle={column.title}
           onClose={() => setTitleOpen(false)}
           onSubmit={(title) => {
-            onEditTitle(column.id, title)
+            onEditColumnTitle(column.id, title)
             setTitleOpen(false)
           }}
         />
