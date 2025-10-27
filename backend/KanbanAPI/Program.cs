@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using KanbanAPI.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,12 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
+
+// EF core + MySQL connection
+var cs =  builder.Configuration.GetConnectionString("KanbanDb");
+builder.Services.AddDbContext<KanbanDbContext>(opt =>
+    opt.UseMySql(cs, ServerVersion.AutoDetect(cs))
+);
 
 var app = builder.Build();
 
