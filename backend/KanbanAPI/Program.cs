@@ -38,4 +38,6 @@ app.UseHttpsRedirection();
 
 app.MapGet("/api/health", () => Results.Ok("Kanban API is running"));
 
+await app.Services.MigrateAndSeedAsync(app.Environment);
+
 app.Run();
