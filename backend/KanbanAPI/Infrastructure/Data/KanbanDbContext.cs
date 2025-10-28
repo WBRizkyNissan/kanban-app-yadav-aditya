@@ -32,48 +32,48 @@ namespace KanbanAPI.Infrastructure.Data;
         protected override void OnModelCreating(ModelBuilder b)
         {
             // Board
-            b.Entity<Board>(entiryBuilder =>
+            b.Entity<Board>(entityBuilder =>
             {
-                entiryBuilder.HasKey(x => x.Id);
-                entiryBuilder.Property(x => x.Id).HasMaxLength(64);
-                entiryBuilder.Property(x => x.Name).IsRequired().HasMaxLength(200);
-                entiryBuilder.Property(x => x.CreatedAtUtc);
-                entiryBuilder.Property(x => x.UpdatedAtUtc);
+                entityBuilder.HasKey(x => x.Id);
+                entityBuilder.Property(x => x.Id).HasMaxLength(64);
+                entityBuilder.Property(x => x.Name).IsRequired().HasMaxLength(200);
+                entityBuilder.Property(x => x.CreatedAtUtc);
+                entityBuilder.Property(x => x.UpdatedAtUtc);
             });
 
             // Column
-            b.Entity<Column>(entiryBuilder =>
+            b.Entity<Column>(entityBuilder =>
             {
-                entiryBuilder.HasKey(x => x.Id);
-                entiryBuilder.Property(x => x.Id).HasMaxLength(64);
-                entiryBuilder.Property(x => x.Title).IsRequired().HasMaxLength(200);
+                entityBuilder.HasKey(x => x.Id);
+                entityBuilder.Property(x => x.Id).HasMaxLength(64);
+                entityBuilder.Property(x => x.Title).IsRequired().HasMaxLength(200);
 
-                entiryBuilder.HasOne(x => x.Board)
+                entityBuilder.HasOne(x => x.Board)
                   .WithMany(bd => bd.Columns)
                   .HasForeignKey(x => x.BoardId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-                entiryBuilder.Property(x => x.CreatedAtUtc);
-                entiryBuilder.Property(x => x.UpdatedAtUtc);
+                entityBuilder.Property(x => x.CreatedAtUtc);
+                entityBuilder.Property(x => x.UpdatedAtUtc);
             });
             
             // TaslkItem
-            b.Entity<TaskItem>(entity_builder =>
+            b.Entity<TaskItem>(entityBuilder =>
             {
-                entity_builder.HasKey(x => x.Id);
-                entity_builder.Property(x => x.Id).HasMaxLength(64);
-                entity_builder.Property(x => x.Title).IsRequired().HasMaxLength(200);
-                entity_builder.Property(x => x.Desc).IsRequired().HasMaxLength(1000);
+                entityBuilder.HasKey(x => x.Id);
+                entityBuilder.Property(x => x.Id).HasMaxLength(64);
+                entityBuilder.Property(x => x.Title).IsRequired().HasMaxLength(200);
+                entityBuilder.Property(x => x.Desc).IsRequired().HasMaxLength(1000);
 
-                entity_builder.HasOne(x => x.Column)
+                entityBuilder.HasOne(x => x.Column)
                   .WithMany(c => c.Tasks)
                   .HasForeignKey(x => x.ColumnId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-                entity_builder.Property(x => x.CreatedAtUtc);
-                entity_builder.Property(x => x.UpdatedAtUtc);
+                entityBuilder.Property(x => x.CreatedAtUtc);
+                entityBuilder.Property(x => x.UpdatedAtUtc);
 
-                entity_builder.HasIndex(x => new { x.ColumnId });
+                entityBuilder.HasIndex(x => new { x.ColumnId });
             });
         }
     }
