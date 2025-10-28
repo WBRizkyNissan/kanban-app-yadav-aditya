@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Services
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
 
 //CORS policy
 builder.Services.AddCors(options =>
@@ -39,5 +40,7 @@ app.UseHttpsRedirection();
 app.MapGet("/api/health", () => Results.Ok("Kanban API is running"));
 
 await app.Services.MigrateAndSeedAsync(app.Environment);
+
+app.MapControllers();
 
 app.Run();
