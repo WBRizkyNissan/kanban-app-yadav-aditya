@@ -15,9 +15,6 @@ namespace KanbanAPI.Infrastructure.Data;
         {
             var now = DateTime.UtcNow;
 
-        //  e means entry
-        // eb means entity_builder
-
         foreach (var entry in ChangeTracker.Entries()
             .Where(entry => entry.State is EntityState.Added or EntityState.Modified))
         {
