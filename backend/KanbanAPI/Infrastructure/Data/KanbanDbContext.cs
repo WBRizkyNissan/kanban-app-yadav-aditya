@@ -15,65 +15,68 @@ namespace KanbanAPI.Infrastructure.Data;
         {
             var now = DateTime.UtcNow;
 
-            foreach (var e in ChangeTracker.Entries()
-                .Where(e => e.State is EntityState.Added or EntityState.Modified))
+        //  e means entry
+        // eb means entity_builder
+
+        foreach (var entry in ChangeTracker.Entries()
+            .Where(entry => entry.State is EntityState.Added or EntityState.Modified))
+        {
+            if (entry.Metadata.FindProperty("UpdatedAtUtc") is not null)
             {
-                if (e.Metadata.FindProperty("UpdatedAtUtc") is not null)
-                {
-                    e.CurrentValues["UpdatedAtUtc"] = now;
-                }
-                if (e.State == EntityState.Added && e.Metadata.FindProperty("CreatedAtUtc") is not null)
-                {
-                    e.CurrentValues["CreatedAtUtc"] = now;
-                }
+                entry.CurrentValues["UpdatedAtUtc"] = now;
             }
+            if (entry.State == EntityState.Added && entry.Metadata.FindProperty("CreatedAtUtc") is not null)
+            {
+                entry.CurrentValues["CreatedAtUtc"] = now;
+            }
+        }
             return base.SaveChangesAsync(cancellationToken);
         }
         protected override void OnModelCreating(ModelBuilder b)
         {
             // Board
-            b.Entity<Board>(eb =>
+            b.Entity<Board>(entity_builder =>
             {
-                eb.HasKey(x => x.Id);
-                eb.Property(x => x.Id).HasMaxLength(64);
-                eb.Property(x => x.Name).IsRequired().HasMaxLength(200);
-                eb.Property(x => x.CreatedAtUtc);
-                eb.Property(x => x.UpdatedAtUtc);
+                entity_builder.HasKey(x => x.Id);
+                entity_builder.Property(x => x.Id).HasMaxLength(64);
+                entity_builder.Property(x => x.Name).IsRequired().HasMaxLength(200);
+                entity_builder.Property(x => x.CreatedAtUtc);
+                entity_builder.Property(x => x.UpdatedAtUtc);
             });
 
             // Column
-            b.Entity<Column>(eb =>
+            b.Entity<Column>(entity_builder =>
             {
-                eb.HasKey(x => x.Id);
-                eb.Property(x => x.Id).HasMaxLength(64);
-                eb.Property(x => x.Title).IsRequired().HasMaxLength(200);
+                entity_builder.HasKey(x => x.Id);
+                entity_builder.Property(x => x.Id).HasMaxLength(64);
+                entity_builder.Property(x => x.Title).IsRequired().HasMaxLength(200);
 
-                eb.HasOne(x => x.Board)
+                entity_builder.HasOne(x => x.Board)
                   .WithMany(bd => bd.Columns)
                   .HasForeignKey(x => x.BoardId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-                eb.Property(x => x.CreatedAtUtc);
-                eb.Property(x => x.UpdatedAtUtc);
+                entity_builder.Property(x => x.CreatedAtUtc);
+                entity_builder.Property(x => x.UpdatedAtUtc);
             });
             
             // TaslkItem
-            b.Entity<TaskItem>(eb =>
+            b.Entity<TaskItem>(entity_builder =>
             {
-                eb.HasKey(x => x.Id);
-                eb.Property(x => x.Id).HasMaxLength(64);
-                eb.Property(x => x.Title).IsRequired().HasMaxLength(200);
-                eb.Property(x => x.Desc).IsRequired().HasMaxLength(1000);
+                entity_builder.HasKey(x => x.Id);
+                entity_builder.Property(x => x.Id).HasMaxLength(64);
+                entity_builder.Property(x => x.Title).IsRequired().HasMaxLength(200);
+                entity_builder.Property(x => x.Desc).IsRequired().HasMaxLength(1000);
 
-                eb.HasOne(x => x.Column)
+                entity_builder.HasOne(x => x.Column)
                   .WithMany(c => c.Tasks)
                   .HasForeignKey(x => x.ColumnId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-                eb.Property(x => x.CreatedAtUtc);
-                eb.Property(x => x.UpdatedAtUtc);
+                entity_builder.Property(x => x.CreatedAtUtc);
+                entity_builder.Property(x => x.UpdatedAtUtc);
 
-                eb.HasIndex(x => new { x.ColumnId });
+                entity_builder.HasIndex(x => new { x.ColumnId });
             });
         }
     }
