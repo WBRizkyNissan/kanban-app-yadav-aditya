@@ -19,9 +19,9 @@ builder.Services.AddCors(options =>
 });
 
 // EF core + MySQL connection
-var connection_string =  builder.Configuration.GetConnectionString("KanbanDb");
+var connectionString =  builder.Configuration.GetConnectionString("KanbanDb");
 builder.Services.AddDbContext<KanbanDbContext>(opt =>
-    opt.UseMySql(connection_string, ServerVersion.AutoDetect(connection_string))
+    opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
 var app = builder.Build();

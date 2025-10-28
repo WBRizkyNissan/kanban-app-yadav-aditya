@@ -32,29 +32,29 @@ namespace KanbanAPI.Infrastructure.Data;
         protected override void OnModelCreating(ModelBuilder b)
         {
             // Board
-            b.Entity<Board>(entity_builder =>
+            b.Entity<Board>(entiryBuilder =>
             {
-                entity_builder.HasKey(x => x.Id);
-                entity_builder.Property(x => x.Id).HasMaxLength(64);
-                entity_builder.Property(x => x.Name).IsRequired().HasMaxLength(200);
-                entity_builder.Property(x => x.CreatedAtUtc);
-                entity_builder.Property(x => x.UpdatedAtUtc);
+                entiryBuilder.HasKey(x => x.Id);
+                entiryBuilder.Property(x => x.Id).HasMaxLength(64);
+                entiryBuilder.Property(x => x.Name).IsRequired().HasMaxLength(200);
+                entiryBuilder.Property(x => x.CreatedAtUtc);
+                entiryBuilder.Property(x => x.UpdatedAtUtc);
             });
 
             // Column
-            b.Entity<Column>(entity_builder =>
+            b.Entity<Column>(entiryBuilder =>
             {
-                entity_builder.HasKey(x => x.Id);
-                entity_builder.Property(x => x.Id).HasMaxLength(64);
-                entity_builder.Property(x => x.Title).IsRequired().HasMaxLength(200);
+                entiryBuilder.HasKey(x => x.Id);
+                entiryBuilder.Property(x => x.Id).HasMaxLength(64);
+                entiryBuilder.Property(x => x.Title).IsRequired().HasMaxLength(200);
 
-                entity_builder.HasOne(x => x.Board)
+                entiryBuilder.HasOne(x => x.Board)
                   .WithMany(bd => bd.Columns)
                   .HasForeignKey(x => x.BoardId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-                entity_builder.Property(x => x.CreatedAtUtc);
-                entity_builder.Property(x => x.UpdatedAtUtc);
+                entiryBuilder.Property(x => x.CreatedAtUtc);
+                entiryBuilder.Property(x => x.UpdatedAtUtc);
             });
             
             // TaslkItem
