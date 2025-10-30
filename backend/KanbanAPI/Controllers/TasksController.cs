@@ -15,7 +15,7 @@ public class TasksController : ControllerBase
 
     // POST /api/columns/{columnId}/tasks
     [HttpPost("api/columns/{columnId}/tasks")]
-    public async Task<ActionResult<TaskDto>> Create(string columnId, [FromBody] CreateTaskRequest request)
+    public async Task<ActionResult<TaskDto>> Create(string columnId, [FromBody] CreateTaskPayload request)
     {
         // validate title 
         if (string.IsNullOrWhiteSpace(request.Title))
@@ -67,7 +67,7 @@ public class TasksController : ControllerBase
 
     // PATCH /api/tasks/{id}
     [HttpPatch("api/tasks/{id}")]
-    public async Task<ActionResult<TaskDto>> Update(string id, [FromBody] UpdateTaskRequest request)
+    public async Task<ActionResult<TaskDto>> Update(string id, [FromBody] UpdateTaskPayload request)
     {
         var existingTask = await _db.Tasks.FirstOrDefaultAsync(task => task.Id == id);
         if (existingTask is null) return NotFound();
