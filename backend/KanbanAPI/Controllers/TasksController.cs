@@ -15,25 +15,25 @@ public class TasksController : ControllerBase
 
     // POST /api/columns/{columnId}/tasks
     [HttpPost("api/columns/{columnId}/tasks")]
-    public async Task<ActionResult<TaskDto>> Create(string columnId, [FromBody] CreateTaskPayload request)
+    public async Task<ActionResult<TaskDto>> Create(string columnId, [FromBody] CreateTaskPayload payload)
     {
         // validate title 
-        if (string.IsNullOrWhiteSpace(request.Title))
+        if (string.IsNullOrWhiteSpace(payload.Title))
             return Problem(statusCode: 400, title: "Validation error", detail: "Title is required.");
-        if (request.Title.Length > 100)
+        if (payload.Title.Length > 100)
             return Problem(statusCode: 400, title: "Validation error", detail: "Title should not exceed 100 characters");
-        if (request.Desc is not null && request.Desc.Length > 1000) 
+        if (payload.Desc is not null && payload.Desc.Length > 1000) 
             return Problem(statusCode: 400, title: "Validation error", detail: "Description should not exceed 1000 characters");
 
         var column = await _db.Columns.FirstOrDefaultAsync(columnEntity => columnEntity.Id == columnId);
         if (column is null) return NotFound(new { message = "Column not found" });
 
-        var taskId = string.IsNullOrWhiteSpace(request.Id) ? Guid.NewGuid().ToString("N") : request.Id.Trim();
+        var taskId = string.IsNullOrWhiteSpace(payload.Id) ? Guid.NewGuid().ToString("N") : payload.Id.Trim();
 
         DateOnly? parsedDueDate = null;
-        if (!string.IsNullOrWhiteSpace(request.DueDate))
+        if (!string.IsNullOrWhiteSpace(payload.DueDate))
         {
-            if (!DateOnly.TryParseExact(request.DueDate, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+            if (!DateOnly.TryParseExact(payload.DueDate, "yyyy-MM-dd", CultureInfo.InvariantCulture,
                                         DateTimeStyles.None, out var dueDateValue))
                 return Problem(statusCode: 400, title: "Validation error", detail: "Due Date must be yyyy-MM-dd");
             parsedDueDate = dueDateValue;
@@ -42,8 +42,8 @@ public class TasksController : ControllerBase
         var newTask = new TaskItem
         {
             Id = taskId,
-            Title = request.Title.Trim(),
-            Desc  = request.Desc?.Trim(),
+            Title = payload.Title.Trim(),
+            Desc  = payload.Desc?.Trim(),
             DueDate = parsedDueDate,
             ColumnId = column.Id,
             CreatedAtUtc = DateTime.UtcNow,
@@ -67,36 +67,36 @@ public class TasksController : ControllerBase
 
     // PATCH /api/tasks/{id}
     [HttpPatch("api/tasks/{id}")]
-    public async Task<ActionResult<TaskDto>> Update(string id, [FromBody] UpdateTaskPayload request)
+    public async Task<ActionResult<TaskDto>> Update(string id, [FromBody] UpdateTaskPayload payload)
     {
         var existingTask = await _db.Tasks.FirstOrDefaultAsync(task => task.Id == id);
         if (existingTask is null) return NotFound();
 
-        if (request.Title is not null)
+        if (payload.Title is not null)
         {
-            if (string.IsNullOrWhiteSpace(request.Title))
+            if (string.IsNullOrWhiteSpace(payload.Title))
                 return Problem(statusCode: 400, title: "Validation error", detail: "Title cannot be empty.");
-            if (request.Title.Length > 100) 
+            if (payload.Title.Length > 100) 
                 return Problem(statusCode: 400, title: "Validation error", detail: "Title should not exceed 100 characters");
-            existingTask.Title = request.Title.Trim();
+            existingTask.Title = payload.Title.Trim();
         }
 
-        if (request.Desc is not null)
+        if (payload.Desc is not null)
         {
-            if (request.Desc.Length > 1000)
+            if (payload.Desc.Length > 1000)
                 return Problem(statusCode: 400, title: "Validation error", detail: "Description should not exceed 1000 characters");
-            existingTask.Desc = request.Desc.Trim();
+            existingTask.Desc = payload.Desc.Trim();
         }
 
-        if (request.DueDate is not null)
+        if (payload.DueDate is not null)
         {
-            if (request.DueDate == string.Empty)
+            if (payload.DueDate == string.Empty)
             {
                 existingTask.DueDate = null; 
             }
             else
             {
-                if (!DateOnly.TryParseExact(request.DueDate, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                if (!DateOnly.TryParseExact(payload.DueDate, "yyyy-MM-dd", CultureInfo.InvariantCulture,
                                             DateTimeStyles.None, out var parsedDueDate))
                     return Problem(statusCode: 400, title: "Validation error", detail: "Due Date must be yyyy-MM-dd.");
                 existingTask.DueDate = parsedDueDate;
