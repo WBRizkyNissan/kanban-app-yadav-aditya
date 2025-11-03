@@ -1,61 +1,104 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react';
+import { api } from '../lib/api';
 
 export default function useKanbanData() {
-  const [columns, setColumns] = useState([]) // [{id,title,tasks:[{id,title,desc,dueDate}]}]
+  const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState(null); 
 
-  const addColumn = useCallback((title) => {
-    const id = crypto.randomUUID()
-    setColumns((prev) => [...prev, { id, title: title.trim(), tasks: [] }])
-    return id
-  }, [])
+  const fetchBoardFromApi = useCallback (async()=> {
+    setLoading(true);
+    try{
+      setError(null);
 
-  const updateColumnTitle = useCallback((columnId, title) => {
-    setColumns((prev) =>
-      prev.map((c) => (c.id === columnId ? { ...c, title: title.trim() } : c)),
-    )
-  }, [])
+      const kanbanBoardResponse = await api.getBoard();
+      const normalizedColumns = (kanbanBoardResponse.columns ?? []).map(column => ({ ...column, tasks: column.tasks ?? [], }));
 
-  const deleteColumn = useCallback((columnId) => {
-    setColumns((prev) => prev.filter((c) => c.id !== columnId))
-  }, [])
+      setColumns(normalizedColumns);
+    } catch (err) {
+      setError(err)
+    } finally{
+      setLoading(false);
+    }
+  }, []);
 
-  const addTask = useCallback((columnId, task) => {
-    const id = crypto.randomUUID()
-    setColumns((prev) =>
-      prev.map((c) =>
-        c.id === columnId ? { ...c, tasks: [{ id, ...task }, ...c.tasks] } : c,
-      ),
-    )
-  }, [])
+  // Fetch once on mount
+  useEffect(() => {
+  fetchBoardFromApi();
+}, [fetchBoardFromApi]);
 
-  const updateTask = useCallback((columnId, taskId, patch) => {
-    setColumns((prev) =>
-      prev.map((c) =>
-        c.id !== columnId
-          ? c
-          : {
-              ...c,
-              tasks: c.tasks.map((t) => (t.id === taskId ? { ...t, ...patch } : t)),
-            },
-      ),
-    )
-  }, [])
 
-  const deleteTask = useCallback((columnId, taskId) => {
-    setColumns((prev) =>
-      prev.map((c) =>
-        c.id !== columnId ? c : { ...c, tasks: c.tasks.filter((t) => t.id !== taskId) },
-      ),
-    )
-  }, [])
+  // Columns
+  const addColumn = useCallback(async (title) => {
+    setLoading(true);
+    try {
+      await api.createColumn(title);
+      await fetchBoardFromApi();
+    } finally{
+      setLoading(false);
+    }
+  }, [fetchBoardFromApi]);
+
+  const updateColumnTitle = useCallback(async (columnId, title) => {
+    setLoading(true);
+    try{
+      await api.renameColumn(columnId, title);
+      await fetchBoardFromApi();
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchBoardFromApi]);
+
+  const deleteColumn = useCallback(async(columnId) => {
+    setLoading(true);
+    try{
+      await api.deleteColumn(columnId);
+      await fetchBoardFromApi();
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchBoardFromApi]);
+
+  // Tasks
+  const addTask = useCallback(async (columnId, task) => {
+    setLoading(true);
+    try {
+      await api.createTask(columnId, task);
+      await fetchBoardFromApi();
+    } finally{
+      setLoading(false);
+    }  
+  }, [fetchBoardFromApi]);
+
+  const updateTask = useCallback(async (_columnId, taskId, patch) => {
+    setLoading(true);
+    try {
+      await api.updateTask(taskId, patch);
+      await fetchBoardFromApi();
+    } finally{
+      setLoading(false);
+    }  
+  }, [fetchBoardFromApi]);
+  
+  const deleteTask = useCallback(async (_columnId, taskId) => {
+    setLoading(true);
+    try {
+      await api.deleteTask(taskId);
+      await fetchBoardFromApi();
+    } finally {
+      setLoading(false);
+    }  
+  }, [fetchBoardFromApi]);
 
   return {
     columns,
+    loading,
+    error,
     addColumn,
     updateColumnTitle,
     deleteColumn,
     addTask,
     updateTask,
     deleteTask,
-  }
+  };
 }

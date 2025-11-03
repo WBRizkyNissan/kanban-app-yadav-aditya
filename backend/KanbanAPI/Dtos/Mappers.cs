@@ -15,7 +15,7 @@ public static class Mappers
     public static ColumnDto ToDto(this Column column) => new ColumnDto(
             column.Id,
             column.Title,
-            column.Tasks
+            (column.Tasks ?? Array.Empty<TaskItem>())
                 .OrderByDescending(task => task.CreatedAtUtc)
                 .Select(task => task.ToDto())
                 .ToList()
