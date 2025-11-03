@@ -2,58 +2,93 @@ import { useState, useCallback, useEffect } from 'react';
 import { api } from '../lib/api';
 
 export default function useKanbanData() {
-  const [columns, setColumns] = useState([]); // [{id,title,tasks:[{id,title,desc,dueDate}]}]
-  const [loading, setLoading] = useState(true); 
+  const [columns, setColumns] = useState([]);
+  const [loading, setLoading] = useState(false); 
   const [error, setError] = useState(null); 
 
-  const load = useCallback(async () => {
+  const fetchBoardFromApi = useCallback (async()=> {
+    setLoading(true);
     try{
       setError(null);
+
       const kanbanBoardResponse = await api.getBoard();
-      const normalizedColumns = (kanbanBoardResponse.columns ?? []).map(column => ({ ...column, tasks: column.tasks ?? [] }));
+      const normalizedColumns = (kanbanBoardResponse.columns ?? []).map(column => ({ ...column, tasks: column.tasks ?? [], }));
+
       setColumns(normalizedColumns);
-    }
-    catch(error){
-      setError(error);
-    }
-    finally{
+    } catch (err) {
+      setError(err)
+    } finally{
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {load(); }, [load]);
+  // Fetch once on mount
+  useEffect(() => {
+  fetchBoardFromApi();
+}, [fetchBoardFromApi]);
+
 
   // Columns
   const addColumn = useCallback(async (title) => {
-    await api.createColumn(title);
-    await load();
-  }, [load]);
+    setLoading(true);
+    try {
+      await api.createColumn(title);
+      await fetchBoardFromApi();
+    } finally{
+      setLoading(false);
+    }
+  }, [fetchBoardFromApi]);
 
   const updateColumnTitle = useCallback(async (columnId, title) => {
-    await api.renameColumn(columnId, title);
-    await load();
-  }, [load]);
+    setLoading(true);
+    try{
+      await api.renameColumn(columnId, title);
+      await fetchBoardFromApi();
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchBoardFromApi]);
 
   const deleteColumn = useCallback(async(columnId) => {
-    await api.deleteColumn(columnId);
-    await load();
-  }, [load]);
+    setLoading(true);
+    try{
+      await api.deleteColumn(columnId);
+      await fetchBoardFromApi();
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchBoardFromApi]);
 
   // Tasks
   const addTask = useCallback(async (columnId, task) => {
-    await api.createTask(columnId, task);
-    await load();
-  }, [load]);
+    setLoading(true);
+    try {
+      await api.createTask(columnId, task);
+      await fetchBoardFromApi();
+    } finally{
+      setLoading(false);
+    }  
+  }, [fetchBoardFromApi]);
 
   const updateTask = useCallback(async (_columnId, taskId, patch) => {
-    await api.updateTask(taskId, patch);
-    await load();
-  }, [load]);
-
+    setLoading(true);
+    try {
+      await api.updateTask(taskId, patch);
+      await fetchBoardFromApi();
+    } finally{
+      setLoading(false);
+    }  
+  }, [fetchBoardFromApi]);
+  
   const deleteTask = useCallback(async (_columnId, taskId) => {
-    await api.deleteTask(taskId);
-    await load();
-  }, [load]);
+    setLoading(true);
+    try {
+      await api.deleteTask(taskId);
+      await fetchBoardFromApi();
+    } finally {
+      setLoading(false);
+    }  
+  }, [fetchBoardFromApi]);
 
   return {
     columns,

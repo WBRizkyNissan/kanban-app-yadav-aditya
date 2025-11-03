@@ -45,14 +45,12 @@ export default function Column({
           + Add Task
         </button>
 
-        {/* {column.tasks.length === 0 ? ( */}
         {(column.tasks?.length ?? 0) === 0 ? (
           <p className="select-none rounded-md border bg-gray-50 px-3 py-6 text-center text-sm text-gray-900">
             No tasks yet. Click “Add Task”.
           </p>
         ) : (
           <div className="space-y-3">
-            {/* {column.tasks.map((t) => ( */}
             {(column.tasks ?? []).map((task) => (
               <TaskCard
                 key={task.id}
