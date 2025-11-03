@@ -1,61 +1,69 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react';
+import { api } from '../lib/api';
 
 export default function useKanbanData() {
-  const [columns, setColumns] = useState([]) // [{id,title,tasks:[{id,title,desc,dueDate}]}]
+  const [columns, setColumns] = useState([]); // [{id,title,tasks:[{id,title,desc,dueDate}]}]
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
 
-  const addColumn = useCallback((title) => {
-    const id = crypto.randomUUID()
-    setColumns((prev) => [...prev, { id, title: title.trim(), tasks: [] }])
-    return id
-  }, [])
+  const load = useCallback(async () => {
+    try{
+      setError(null);
+      const kanbanBoardResponse = await api.getBoard();
+      const normalizedColumns = (kanbanBoardResponse.columns ?? []).map(column => ({ ...column, tasks: column.tasks ?? [] }));
+      setColumns(normalizedColumns);
+    }
+    catch(error){
+      setError(error);
+    }
+    finally{
+      setLoading(false);
+    }
+  }, []);
 
-  const updateColumnTitle = useCallback((columnId, title) => {
-    setColumns((prev) =>
-      prev.map((c) => (c.id === columnId ? { ...c, title: title.trim() } : c)),
-    )
-  }, [])
+  useEffect(() => {load(); }, [load]);
 
-  const deleteColumn = useCallback((columnId) => {
-    setColumns((prev) => prev.filter((c) => c.id !== columnId))
-  }, [])
+  // Columns
+  const addColumn = useCallback(async (title) => {
+    await api.createColumn(title);
+    await load();
+  }, [load]);
 
-  const addTask = useCallback((columnId, task) => {
-    const id = crypto.randomUUID()
-    setColumns((prev) =>
-      prev.map((c) =>
-        c.id === columnId ? { ...c, tasks: [{ id, ...task }, ...c.tasks] } : c,
-      ),
-    )
-  }, [])
+  const updateColumnTitle = useCallback(async (columnId, title) => {
+    await api.renameColumn(columnId, title);
+    await load();
+  }, [load]);
 
-  const updateTask = useCallback((columnId, taskId, patch) => {
-    setColumns((prev) =>
-      prev.map((c) =>
-        c.id !== columnId
-          ? c
-          : {
-              ...c,
-              tasks: c.tasks.map((t) => (t.id === taskId ? { ...t, ...patch } : t)),
-            },
-      ),
-    )
-  }, [])
+  const deleteColumn = useCallback(async(columnId) => {
+    await api.deleteColumn(columnId);
+    await load();
+  }, [load]);
 
-  const deleteTask = useCallback((columnId, taskId) => {
-    setColumns((prev) =>
-      prev.map((c) =>
-        c.id !== columnId ? c : { ...c, tasks: c.tasks.filter((t) => t.id !== taskId) },
-      ),
-    )
-  }, [])
+  // Tasks
+  const addTask = useCallback(async (columnId, task) => {
+    await api.createTask(columnId, task);
+    await load();
+  }, [load]);
+
+  const updateTask = useCallback(async (_columnId, taskId, patch) => {
+    await api.updateTask(taskId, patch);
+    await load();
+  }, [load]);
+
+  const deleteTask = useCallback(async (_columnId, taskId) => {
+    await api.deleteTask(taskId);
+    await load();
+  }, [load]);
 
   return {
     columns,
+    loading,
+    error,
     addColumn,
     updateColumnTitle,
     deleteColumn,
     addTask,
     updateTask,
     deleteTask,
-  }
+  };
 }

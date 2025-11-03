@@ -45,21 +45,23 @@ export default function Column({
           + Add Task
         </button>
 
-        {column.tasks.length === 0 ? (
+        {/* {column.tasks.length === 0 ? ( */}
+        {(column.tasks?.length ?? 0) === 0 ? (
           <p className="select-none rounded-md border bg-gray-50 px-3 py-6 text-center text-sm text-gray-900">
             No tasks yet. Click “Add Task”.
           </p>
         ) : (
           <div className="space-y-3">
-            {column.tasks.map((t) => (
+            {/* {column.tasks.map((t) => ( */}
+            {(column.tasks ?? []).map((task) => (
               <TaskCard
-                key={t.id}
+                key={task.id}
                 columnId={column.id}
-                task={t}
-                onEdit={(patch) => onEditTask(column.id, t.id, patch)}
+                task={task}
+                onEdit={(patch) => onEditTask(column.id, task.id, patch)}
                 onDelete={() => {
                     if (window.confirm('Are you sure you want to delete this task?')) {
-                        onDeleteTask(column.id, t.id)
+                        onDeleteTask(column.id, task.id)
                 }
                 }}
               />
