@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:5173") 
+        policy.WithOrigins("http://localhost:5173", "https://delightful-cliff-04b274300.3.azurestaticapps.net") 
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
