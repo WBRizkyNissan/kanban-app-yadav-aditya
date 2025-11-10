@@ -42,6 +42,7 @@ project.fragment.lock.json
 appsettings.Development.json
 appsettings.Local.json
 *.secret.json
+appsettings.json
 
 ############################
 # Frontend (React + Vite)
@@ -62,10 +63,10 @@ frontend/yarn-error.log*
 frontend/pnpm-debug.log*
 
 # Local environment files
-frontend/.env.local
-frontend/.env.development.local
+frontend/.env
+frontend/.env.development
 frontend/.env.test.local
-frontend/.env.production.local
+frontend/.env.production
 
 # Editor stuff
 frontend/.vscode/
