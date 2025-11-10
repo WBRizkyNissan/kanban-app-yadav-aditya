@@ -1,0 +1,48 @@
+name: Deploy KanbanAPI to Azure App Service
+
+on:
+  push:
+    branches: [ main ]     
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch: {}
+
+env:
+  AZURE_WEBAPP_NAME: kanban-api        
+  DOTNET_VERSION: '9.0.x'
+  WORKING_DIR: backend/KanbanAPI       
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Restore/build/publish only the Web API project
+      - name: Restore
+        working-directory: ${{ env.WORKING_DIR }}
+        run: dotnet restore
+
+      - name: Build (Release)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        working-directory: ${{ env.WORKING_DIR }}
+        run: dotnet publish --configuration Release --output ./publish
+
+      # Deploy the published folder to Azure App Service
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ env.WORKING_DIR }}/publish
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
